@@ -1,0 +1,19 @@
+{
+  "name": "linkedin-signin",
+  "version": "1.0.0",
+  "description": "Polymer wrapper and Material Design styling of LinkedIn's sign in button",
+  "keywords": [
+    "polymer",
+    "web-components",
+	"linkedin"
+  ],
+  "main": "linkedin-signin.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "paper-ripple": "PolymerElements/paper-ripple#^1.0.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "*",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+  }
+}

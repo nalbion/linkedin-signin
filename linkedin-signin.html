@@ -1,0 +1,191 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+
+<!--
+@element linkedin-signin
+-->
+
+<dom-module id="linkedin-signin">
+<style>
+:host {
+	margin: 0 0.29em;
+	border-radius: 3px;
+	opacity: 0;
+	transition: opacity .5s;
+
+	line-height: initial;
+	position: absolute;
+	font-size: 14px;
+	font-weight: 400;
+}
+:host /deep/ paper-ripple {
+	z-index: 1;
+	pointer-events: none;
+}
+:host /deep/ .IN-widget {
+	position: relative;
+	background-color: #0077b5;
+	border: 1px solid #0369a0;
+	border-radius: 3px;
+}
+</style>
+<template>
+</template>
+<script>
+LinkedInSignIn = Polymer({
+	is: 'linkedin-signin',
+	properties: {
+		// Sent as api_key, but referred to as "Client ID" in the My Apps section of the Developers site
+		clientId: String,
+		// An optional comma-separated list of the names of Javascript functions that you want the
+		// SDK to execute once it has successfully loaded itself.
+		onLoad: String,
+		// A boolean value that, when set to true, will instruct the SDK to check for a cookie containing
+		// an existing authentication token for the user.  If found, the user will be automatically logged
+		// in when the SDK is invoked.
+		// The default value is false, which will require the user to log in every page load, regardless of
+		// previous successful logins.
+		authorize: Boolean,
+		// A language code to localize any of the UI text that the SDK outputs.
+		// The default language is US English (en_US).
+		lang: String,
+		// Comma delimited list of profile fields to request
+		// eg: "id,num-connections,picture-url"
+		fields: String,
+		person: {
+			type: Object,
+			readOnly: true,
+			notify: true
+		},
+		error: {
+			type: String,
+			readOnly: true,
+			notify: true
+		},
+		buttonReady: {
+			type: Boolean,
+			value: false,
+			readOnly: true,
+			notify: true
+		}
+	},
+	ready: function () {
+		LinkedInSignIn._instances = ++LinkedInSignIn._instances || 1;
+		var script = document.createElement('script'),
+			buttonScript = document.createElement('script'),
+			body = document.body,
+			self = this;
+
+		buttonScript.setAttribute("type", "IN/Login");
+		this.appendChild(buttonScript);
+
+		if (!this.onLoad) {
+			// Setup an event listener to make an API call once auth is complete
+			var callbackName = 'onLoad' + LinkedInSignIn._instances,
+				self = this;
+			this.onLoad = 'LinkedInSignIn.' + callbackName;
+			LinkedInSignIn[callbackName] = function() {
+//				IN.Event.on(IN, "auth", self.getProfileData, self);
+			};
+		}
+
+		script.setAttribute('src', '//platform.linkedin.com/in.js');
+		var args = 'api_key: ' + this.clientId;
+		if (this.onLoad) {
+			args += '\nonLoad: ' + this.onLoad;
+		}
+		if (this.authorize) {
+			args += '\nauthorize: ' + this.authorize;
+		}
+		if (this.lang) {
+			args += '\nlang: ' + this.lang;
+		}
+
+		script.innerHTML = args;
+		document.head.appendChild(script);
+
+		script.onload = function(e) {
+			IN.Event.onOnce(IN,
+				'systemReady', function(r) {
+				var ripple = document.createElement('paper-ripple'),
+				widget = this.firstElementChild, // || this.children[0],
+				firstChild = widget.firstElementChild,
+				a = firstChild.getElementsByTagName('a')[0],
+				logo = a.firstElementChild,
+				title = a.children[1],
+				titleText = title.children[1];
+
+				firstChild.style.setProperty('display', 'block', 'important');
+				firstChild.style.height = '34px';
+
+				logo.style.setProperty('height', '25px', 'important');
+				logo.style.setProperty('width', '26px', 'important');
+				logo.style.setProperty('margin', '4px', 'important');
+				logo.style.setProperty('background-position', '-64px -562px', 'important');
+				logo.style.setProperty('background-color', 'transparent', 'important');
+				logo.style.setProperty('background-size', 'initial', 'important');
+				logo.style.setProperty('border', 'none', 'important');
+
+				title.style.setProperty('height', '18px', 'important');
+				title.style.setProperty('margin', '0', 'important');
+				title.style.setProperty('padding', '7px 4px 7px 29px', 'important');
+
+				titleText.style.setProperty('font-size', '14px', 'important');
+				titleText.style.setProperty('font-weight', '400', 'important');
+				titleText.style.setProperty('font-family', 'inherit', 'important');
+				titleText.style.padding = '0 8px';
+
+				widget.insertBefore(ripple, firstChild);
+
+				this.style.opacity = 1;
+				self._setButtonReady(true);
+			}, self);
+		};
+	},
+
+	/**
+	 * Use the API call wrapper to request the member's basic profile data
+	 * Updates this.person with {id, firstName, lastName, headline} or what ever is requested in <code>fields</code>
+	 */
+	getProfileData: function() {
+		if (!this.isAuthorized()) {
+			console.info('not authorized by LinkedIn');
+			return
+		}
+		console.info('querying profile data', this.fields);
+		var self = this,
+			url = '/people/~';
+		if (this.fields) {
+			url += ':(' + this.fields + ')';
+		}
+		url += '?format=json';
+		IN.API.Raw(url).result(function(response) {
+			console.info('profile response:', response);
+			self._setPerson(response);
+		}).error(function(error) {
+			console.error('profile error:', error);
+			self._setError(error);
+		});
+	},
+
+	signIn: function() {
+		IN.User.authorize(this.getProfileData, this);
+	},
+
+	/** @return true if the user is authorized by LinkedIn and has granted access to your application */
+	isAuthorized: function() {
+		return IN.User.isAuthorized();
+	},
+
+	signOut: function() {
+		IN.User.logout(function() {
+			console.info('logged out of linked in');
+		}, this);
+	},
+
+	//IN.Event.on(IN, frameworkLoaded | logout | systemReady, callback, callbackScope, extraData);
+	//IN.Event.onOnce(IN, eventName, callback, callbackScope, extraData);
+	// call every 30 minutes: IN.User.refresh()
+});
+</script>
+</dom-module>
