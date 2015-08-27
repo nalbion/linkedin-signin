@@ -22,7 +22,7 @@
 	z-index: 1;
 	pointer-events: none;
 }
-:host /deep/ .IN-widget {
+:host /deep/ .IN-widget > span {
 	position: relative;
 	background-color: #0077b5;
 	border: 1px solid #0369a0;
@@ -52,6 +52,12 @@ LinkedInSignIn = Polymer({
 		// Comma delimited list of profile fields to request
 		// eg: "id,num-connections,picture-url"
 		fields: String,
+		signedIn: {
+			type: Boolean,
+			readOnly: true,
+			notify: true,
+			value: false
+		},
 		person: {
 			type: Object,
 			readOnly: true,
@@ -64,9 +70,9 @@ LinkedInSignIn = Polymer({
 		},
 		buttonReady: {
 			type: Boolean,
-			value: false,
 			readOnly: true,
-			notify: true
+			notify: true,
+			value: false
 		}
 	},
 	ready: function () {
@@ -85,7 +91,8 @@ LinkedInSignIn = Polymer({
 				self = this;
 			this.onLoad = 'LinkedInSignIn.' + callbackName;
 			LinkedInSignIn[callbackName] = function() {
-//				IN.Event.on(IN, "auth", self.getProfileData, self);
+				console.info('linkedin-signin default onLoad handler');
+				IN.Event.on(IN, "auth", self.getProfileData, self);
 			};
 		}
 
@@ -105,42 +112,47 @@ LinkedInSignIn = Polymer({
 		document.head.appendChild(script);
 
 		script.onload = function(e) {
-			IN.Event.onOnce(IN,
-				'systemReady', function(r) {
-				var ripple = document.createElement('paper-ripple'),
-				widget = this.firstElementChild, // || this.children[0],
-				firstChild = widget.firstElementChild,
-				a = firstChild.getElementsByTagName('a')[0],
-				logo = a.firstElementChild,
-				title = a.children[1],
-				titleText = title.children[1];
-
-				firstChild.style.setProperty('display', 'block', 'important');
-				firstChild.style.height = '34px';
-
-				logo.style.setProperty('height', '25px', 'important');
-				logo.style.setProperty('width', '26px', 'important');
-				logo.style.setProperty('margin', '4px', 'important');
-				logo.style.setProperty('background-position', '-64px -562px', 'important');
-				logo.style.setProperty('background-color', 'transparent', 'important');
-				logo.style.setProperty('background-size', 'initial', 'important');
-				logo.style.setProperty('border', 'none', 'important');
-
-				title.style.setProperty('height', '18px', 'important');
-				title.style.setProperty('margin', '0', 'important');
-				title.style.setProperty('padding', '7px 4px 7px 29px', 'important');
-
-				titleText.style.setProperty('font-size', '14px', 'important');
-				titleText.style.setProperty('font-weight', '400', 'important');
-				titleText.style.setProperty('font-family', 'inherit', 'important');
-				titleText.style.padding = '0 8px';
-
-				widget.insertBefore(ripple, firstChild);
-
-				this.style.opacity = 1;
-				self._setButtonReady(true);
+			IN.Event.on(IN, 'systemReady', self.restyleButton, self);
+			IN.Event.on(IN, 'logout', function() {
+				this.async(this.restyleButton, 0);
 			}, self);
 		};
+	},
+
+	restyleButton: function() {
+		console.info('restyleButton...');
+		var ripple = document.createElement('paper-ripple'),
+			widget = this.firstElementChild, // || this.children[0],
+			firstChild = widget.firstElementChild,
+			a = firstChild.getElementsByTagName('a')[0],
+			logo = a.firstElementChild,
+			title = a.children[1],
+			titleText = title.children[1];
+
+		firstChild.style.setProperty('display', 'block', 'important');
+		firstChild.style.height = '34px';
+
+		logo.style.setProperty('height', '25px', 'important');
+		logo.style.setProperty('width', '26px', 'important');
+		logo.style.setProperty('margin', '4px', 'important');
+		logo.style.setProperty('background-position', '-64px -562px', 'important');
+		logo.style.setProperty('background-color', 'transparent', 'important');
+		logo.style.setProperty('background-size', 'initial', 'important');
+		logo.style.setProperty('border', 'none', 'important');
+
+		title.style.setProperty('height', '18px', 'important');
+		title.style.setProperty('margin', '0', 'important');
+		title.style.setProperty('padding', '7px 4px 7px 29px', 'important');
+
+		titleText.style.setProperty('font-size', '14px', 'important');
+		titleText.style.setProperty('font-weight', '400', 'important');
+		titleText.style.setProperty('font-family', 'inherit', 'important');
+		titleText.style.padding = '0 8px';
+
+		widget.insertBefore(ripple, firstChild);
+
+		this.style.opacity = 1;
+		this._setButtonReady(true);
 	},
 
 	/**
@@ -152,6 +164,8 @@ LinkedInSignIn = Polymer({
 			console.info('not authorized by LinkedIn');
 			return
 		}
+		this._setSignedIn(true);
+
 		console.info('querying profile data', this.fields);
 		var self = this,
 			url = '/people/~';
@@ -178,8 +192,13 @@ LinkedInSignIn = Polymer({
 	},
 
 	signOut: function() {
-		IN.User.logout(function() {
+		IN.User.logout(function(e) {
 			console.info('logged out of linked in');
+			this._setButtonReady(false);
+			this._setSignedIn(false);
+			this._setPerson({});
+			this._setError(null);
+//			this.async(this.restyleButton.bind(this), 20);
 		}, this);
 	},
 
