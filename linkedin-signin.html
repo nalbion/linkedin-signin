@@ -4,7 +4,6 @@
 <!--
 @element linkedin-signin
 -->
-
 <dom-module id="linkedin-signin">
 <style>
 :host {
@@ -46,6 +45,9 @@ LinkedInSignIn = Polymer({
 		// The default value is false, which will require the user to log in every page load, regardless of
 		// previous successful logins.
 		authorize: Boolean,
+		// set to true if you need to share the authentication token with your own server.
+		// LinkedIn create a cookie named linkedin_oauth_${clientId}
+		cookie: Boolean,
 		// A language code to localize any of the UI text that the SDK outputs.
 		// The default language is US English (en_US).
 		lang: String,
@@ -63,6 +65,15 @@ LinkedInSignIn = Polymer({
 			readOnly: true,
 			notify: true
 		},
+		/** 
+		 * This can be used to re-authenticate the user on a back-end server 
+		 * @see https://developer-programs.linkedin.com/documents/exchange-jsapi-tokens-rest-api-oauth-tokens
+		 */
+		oAuthData: {
+			type: Object,
+			readOnly: true,
+			notify: true
+		},
 		error: {
 			type: String,
 			readOnly: true,
@@ -75,6 +86,7 @@ LinkedInSignIn = Polymer({
 			value: false
 		}
 	},
+
 	ready: function () {
 		LinkedInSignIn._instances = ++LinkedInSignIn._instances || 1;
 		var script = document.createElement('script'),
@@ -91,8 +103,7 @@ LinkedInSignIn = Polymer({
 				self = this;
 			this.onLoad = 'LinkedInSignIn.' + callbackName;
 			LinkedInSignIn[callbackName] = function() {
-				console.info('linkedin-signin default onLoad handler');
-				IN.Event.on(IN, "auth", self.getProfileData, self);
+				IN.Event.on(IN, "auth", self._onSignedIn, self);
 			};
 		}
 
@@ -104,6 +115,9 @@ LinkedInSignIn = Polymer({
 		if (this.authorize) {
 			args += '\nauthorize: ' + this.authorize;
 		}
+		if (true === this.cookie) {
+			args += '\ncredentials_cookie: true';
+		}
 		if (this.lang) {
 			args += '\nlang: ' + this.lang;
 		}
@@ -111,16 +125,74 @@ LinkedInSignIn = Polymer({
 		script.innerHTML = args;
 		document.head.appendChild(script);
 
-		script.onload = function(e) {
-			IN.Event.on(IN, 'systemReady', self.restyleButton, self);
+		script.onload = function() {
+			IN.Event.on(IN, 'systemReady', self._restyleButton, self);
 			IN.Event.on(IN, 'logout', function() {
-				this.async(this.restyleButton, 0);
+				self.async(self._restyleButton, 0);
 			}, self);
 		};
 	},
 
-	restyleButton: function() {
-		console.info('restyleButton...');
+	/**
+	 * Use the API call wrapper to request the member's basic profile data
+	 * Updates this.person with {id, firstName, lastName, headline} or what ever is requested in <code>fields</code>
+	 */
+	requestProfileData: function() {
+		if (!this.isAuthorized()) {
+			return;
+		}
+		
+		var self = this,
+			url = '/people/~';
+		if (this.fields) {
+			url += ':(' + this.fields + ')';
+		}
+		url += '?format=json';
+		IN.API.Raw(url).result(function(response) {
+			self._setPerson(response);
+			self._setSignedIn(true);
+		}).error(function(error) {
+			console.error('profile error:', error);
+			self._setError(error);
+		});
+	},
+
+	signIn: function() {
+		IN.User.authorize(this._onSignedIn, this);
+	},
+
+	/** @return true if the user is authorized by LinkedIn and has granted access to your application */
+	isAuthorized: function() {
+		return IN.User.isAuthorized();
+	},
+
+	signOut: function() {
+		IN.User.logout(function(e) {
+			this._setButtonReady(false);
+			this._setSignedIn(false);
+			this._setPerson({});
+			this._setError(null);
+		}, this);
+	},
+
+	//IN.Event.on(IN, frameworkLoaded | logout | systemReady, callback, callbackScope, extraData);
+	//IN.Event.onOnce(IN, eventName, callback, callbackScope, extraData);
+	// call every 30 minutes: IN.User.refresh()
+
+
+	_onSignedIn: function() {
+		if (this.cookie) {
+			var key = 'linkedin_oauth_' + this.clientId,
+				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + 
+														key.replace(/[\-\.\+\*]/g, '\\$&') + 
+														'\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
+			oauthData = JSON.parse(decodeURIComponent(oauthData));
+			this._setOAuthData(oauthData);
+		}
+		this.requestProfileData();
+	},
+
+	_restyleButton: function() {
 		var ripple = document.createElement('paper-ripple'),
 			widget = this.firstElementChild, // || this.children[0],
 			firstChild = widget.firstElementChild,
@@ -153,58 +225,7 @@ LinkedInSignIn = Polymer({
 
 		this.style.opacity = 1;
 		this._setButtonReady(true);
-	},
-
-	/**
-	 * Use the API call wrapper to request the member's basic profile data
-	 * Updates this.person with {id, firstName, lastName, headline} or what ever is requested in <code>fields</code>
-	 */
-	getProfileData: function() {
-		if (!this.isAuthorized()) {
-			console.info('not authorized by LinkedIn');
-			return
-		}
-		this._setSignedIn(true);
-
-		console.info('querying profile data', this.fields);
-		var self = this,
-			url = '/people/~';
-		if (this.fields) {
-			url += ':(' + this.fields + ')';
-		}
-		url += '?format=json';
-		IN.API.Raw(url).result(function(response) {
-			console.info('profile response:', response);
-			self._setPerson(response);
-		}).error(function(error) {
-			console.error('profile error:', error);
-			self._setError(error);
-		});
-	},
-
-	signIn: function() {
-		IN.User.authorize(this.getProfileData, this);
-	},
-
-	/** @return true if the user is authorized by LinkedIn and has granted access to your application */
-	isAuthorized: function() {
-		return IN.User.isAuthorized();
-	},
-
-	signOut: function() {
-		IN.User.logout(function(e) {
-			console.info('logged out of linked in');
-			this._setButtonReady(false);
-			this._setSignedIn(false);
-			this._setPerson({});
-			this._setError(null);
-//			this.async(this.restyleButton.bind(this), 20);
-		}, this);
-	},
-
-	//IN.Event.on(IN, frameworkLoaded | logout | systemReady, callback, callbackScope, extraData);
-	//IN.Event.onOnce(IN, eventName, callback, callbackScope, extraData);
-	// call every 30 minutes: IN.User.refresh()
+	}
 });
 </script>
 </dom-module>
