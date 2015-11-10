@@ -102,11 +102,11 @@ LinkedInSignIn = Polymer({
 		Polymer.PaperButtonBehavior
 	],
 
-	ready: function () {
+	attached: function () {
 		var self = this,
 			initLinkedIn = function() {
 				IN.Event.on(IN, 'auth', self._onSignedIn, self);
-				IN.Event.on(IN, 'systemReady', self._restyleButton, self);
+				IN.Event.on(IN, 'systemReady', function(){console.info('systemReady!');self._restyleButton();}, self);
 				IN.Event.on(IN, 'logout', function() {
 					self.async(self._restyleButton, 0);
 				}, self);
@@ -120,6 +120,8 @@ LinkedInSignIn = Polymer({
 
 		if (window.IN) {
 			initLinkedIn();
+			IN.parse(this);
+			this._restyleButton();
 		} else {
 			var script = document.createElement('script'),
 				callbackName = 'onLoad' + LinkedInSignIn._instances,
@@ -139,7 +141,6 @@ LinkedInSignIn = Polymer({
 				args += '\nlang: ' + this.lang;
 			}
 
-			// script.onLoad = initLinkedIn;
 			script.innerHTML = args;
 			document.head.appendChild(script);
 		}
@@ -217,13 +218,13 @@ LinkedInSignIn = Polymer({
 
 		logo.style.setProperty('height', '25px', 'important');
 		logo.style.setProperty('width', '26px', 'important');
-		logo.style.setProperty('margin', '4px', 'important');
+		logo.style.setProperty('margin', '6px 4px', 'important');
 		logo.style.setProperty('background-position', '-64px -562px', 'important');
 		logo.style.setProperty('background-color', 'transparent', 'important');
 		logo.style.setProperty('background-size', 'initial', 'important');
 		logo.style.setProperty('border', 'none', 'important');
 
-		title.style.setProperty('height', '18px', 'important');
+		title.style.setProperty('height', '20px', 'important');
 		title.style.setProperty('margin', '0', 'important');
 		title.style.setProperty('padding', '7px 4px 7px 29px', 'important');
 
