@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-behaviors/paper-button-behavior.html">
 
 <!--
 @element linkedin-signin
@@ -13,15 +14,19 @@
 	transition: opacity .5s;
 
 	line-height: initial;
-	position: absolute;
+	display: inline-block;
+    position: relative;
 	font-size: 14px;
 	font-weight: 400;
 }
-:host /deep/ paper-ripple {
+:host paper-ripple {
 	z-index: 1;
 	pointer-events: none;
 }
-:host /deep/ .IN-widget > span {
+:host .IN-widget {
+	position: relative;
+}
+:host .IN-widget > span {
 	position: relative;
 	background-color: #0077b5;
 	border: 1px solid #0369a0;
@@ -53,7 +58,9 @@ LinkedInSignIn = Polymer({
 		lang: String,
 		// Comma delimited list of profile fields to request
 		// eg: "id,num-connections,picture-url"
-		fields: String,
+		fields: {
+			type: String
+		},
 		signedIn: {
 			type: Boolean,
 			readOnly: true,
@@ -64,6 +71,10 @@ LinkedInSignIn = Polymer({
 			type: Object,
 			readOnly: true,
 			notify: true
+		},
+		labelSignin: {
+			type: String,
+			value: 'Sign in with LinkedIn'
 		},
 		/** 
 		 * This can be used to re-authenticate the user on a back-end server 
@@ -87,50 +98,46 @@ LinkedInSignIn = Polymer({
 		}
 	},
 
+	behaviors: [
+		Polymer.PaperButtonBehavior
+	],
+
 	ready: function () {
+		var self = this,
+			initLinkedIn = function() {
+				IN.Event.on(IN, "auth", self._onSignedIn, self);
+				IN.Event.on(IN, 'systemReady', self._restyleButton, self);
+				IN.Event.on(IN, 'logout', function() {
+					self.async(self._restyleButton, 0);
+				}, self);
+			};
+
 		LinkedInSignIn._instances = ++LinkedInSignIn._instances || 1;
-		var script = document.createElement('script'),
-			buttonScript = document.createElement('script'),
-			body = document.body,
-			self = this;
+		var buttonScript = document.createElement('script');
 
 		buttonScript.setAttribute("type", "IN/Login");
 		this.appendChild(buttonScript);
 
-		if (!this.onLoad) {
-			// Setup an event listener to make an API call once auth is complete
-			var callbackName = 'onLoad' + LinkedInSignIn._instances,
-				self = this;
-			this.onLoad = 'LinkedInSignIn.' + callbackName;
-			LinkedInSignIn[callbackName] = function() {
-				IN.Event.on(IN, "auth", self._onSignedIn, self);
-			};
-		}
+		if (window.IN) {
+			initLinkedIn();
+		} else {
+			var script = document.createElement('script');
+			
+			script.setAttribute('src', '//platform.linkedin.com/in.js');
+			var args = 'api_key: ' + this.clientId;
+			if (this.authorize) {
+				args += '\nauthorize: ' + this.authorize;
+			}
+			if (true === this.cookie) {
+				args += '\ncredentials_cookie: true';
+			}
+			if (this.lang) {
+				args += '\nlang: ' + this.lang;
+			}
 
-		script.setAttribute('src', '//platform.linkedin.com/in.js');
-		var args = 'api_key: ' + this.clientId;
-		if (this.onLoad) {
-			args += '\nonLoad: ' + this.onLoad;
+			script.innerHTML = args;
+			document.head.appendChild(script);
 		}
-		if (this.authorize) {
-			args += '\nauthorize: ' + this.authorize;
-		}
-		if (true === this.cookie) {
-			args += '\ncredentials_cookie: true';
-		}
-		if (this.lang) {
-			args += '\nlang: ' + this.lang;
-		}
-
-		script.innerHTML = args;
-		document.head.appendChild(script);
-
-		script.onload = function() {
-			IN.Event.on(IN, 'systemReady', self._restyleButton, self);
-			IN.Event.on(IN, 'logout', function() {
-				self.async(self._restyleButton, 0);
-			}, self);
-		};
 	},
 
 	/**
@@ -180,7 +187,7 @@ LinkedInSignIn = Polymer({
 	// call every 30 minutes: IN.User.refresh()
 
 
-	_onSignedIn: function() {
+	_onSignedIn: function(e) {
 		if (this.cookie) {
 			var key = 'linkedin_oauth_' + this.clientId,
 				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + 
@@ -193,8 +200,7 @@ LinkedInSignIn = Polymer({
 	},
 
 	_restyleButton: function() {
-		var ripple = document.createElement('paper-ripple'),
-			widget = this.firstElementChild, // || this.children[0],
+		var widget = this.firstElementChild,
 			firstChild = widget.firstElementChild,
 			a = firstChild.getElementsByTagName('a')[0],
 			logo = a.firstElementChild,
@@ -220,8 +226,9 @@ LinkedInSignIn = Polymer({
 		titleText.style.setProperty('font-weight', '400', 'important');
 		titleText.style.setProperty('font-family', 'inherit', 'important');
 		titleText.style.padding = '0 8px';
-
-		widget.insertBefore(ripple, firstChild);
+		if (this.labelSignin) {
+			titleText.innerHTML = this.labelSignin;
+		}
 
 		this.style.opacity = 1;
 		this._setButtonReady(true);

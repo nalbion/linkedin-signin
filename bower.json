@@ -5,7 +5,7 @@
   "keywords": [
     "polymer",
     "web-components",
-	"linkedin"
+	  "linkedin"
   ],
   "main": "linkedin-signin.html",
   "dependencies": {
