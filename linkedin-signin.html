@@ -105,7 +105,7 @@ LinkedInSignIn = Polymer({
 	ready: function () {
 		var self = this,
 			initLinkedIn = function() {
-				IN.Event.on(IN, "auth", self._onSignedIn, self);
+				IN.Event.on(IN, 'auth', self._onSignedIn, self);
 				IN.Event.on(IN, 'systemReady', self._restyleButton, self);
 				IN.Event.on(IN, 'logout', function() {
 					self.async(self._restyleButton, 0);
@@ -121,10 +121,14 @@ LinkedInSignIn = Polymer({
 		if (window.IN) {
 			initLinkedIn();
 		} else {
-			var script = document.createElement('script');
+			var script = document.createElement('script'),
+				callbackName = 'onLoad' + LinkedInSignIn._instances,
+				onLoad = 'LinkedInSignIn.' + callbackName;
+			LinkedInSignIn[callbackName] = initLinkedIn;
 			
 			script.setAttribute('src', '//platform.linkedin.com/in.js');
 			var args = 'api_key: ' + this.clientId;
+			args += '\nonLoad: ' + onLoad;
 			if (this.authorize) {
 				args += '\nauthorize: ' + this.authorize;
 			}
@@ -135,6 +139,7 @@ LinkedInSignIn = Polymer({
 				args += '\nlang: ' + this.lang;
 			}
 
+			// script.onLoad = initLinkedIn;
 			script.innerHTML = args;
 			document.head.appendChild(script);
 		}
