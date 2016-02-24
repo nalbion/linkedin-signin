@@ -3,7 +3,10 @@
 <link rel="import" href="../paper-behaviors/paper-button-behavior.html">
 
 <!--
+Polymer wrapper and Material Design styling of LinkedIn's sign in button.
+
 @element linkedin-signin
+@demo demo/index.html
 -->
 <dom-module id="linkedin-signin">
 <style>
@@ -39,45 +42,66 @@
 LinkedInSignIn = Polymer({
 	is: 'linkedin-signin',
 	properties: {
-		// Sent as api_key, but referred to as "Client ID" in the My Apps section of the Developers site
+		/**
+		 * Sent as api_key, but referred to as "Client ID" in the My Apps section of the Developers site
+		 */
 		clientId: String,
-		// An optional comma-separated list of the names of Javascript functions that you want the
-		// SDK to execute once it has successfully loaded itself.
+		/**
+		 * An optional comma-separated list of the names of Javascript functions that you want the
+		 * SDK to execute once it has successfully loaded itself.
+		 */
 		onLoad: String,
-		// A boolean value that, when set to true, will instruct the SDK to check for a cookie containing
-		// an existing authentication token for the user.  If found, the user will be automatically logged
-		// in when the SDK is invoked.
-		// The default value is false, which will require the user to log in every page load, regardless of
-		// previous successful logins.
+		/**
+		 * A boolean value that, when set to true, will instruct the SDK to check for a cookie containing
+		 * an existing authentication token for the user.  If found, the user will be automatically logged
+		 * in when the SDK is invoked.
+		 * The default value is false, which will require the user to log in every page load, regardless of
+		 * previous successful logins.
+		 */
 		authorize: Boolean,
-		// set to true if you need to share the authentication token with your own server.
-		// LinkedIn create a cookie named linkedin_oauth_${clientId}
+		/**
+		 * set to true if you need to share the authentication token with your own server.
+		 * LinkedIn create a cookie named linkedin_oauth_${clientId}
+		*/
 		cookie: Boolean,
-		// A language code to localize any of the UI text that the SDK outputs.
-		// The default language is US English (en_US).
+		/**
+		 * A language code to localize any of the UI text that the SDK outputs.
+		 * The default language is US English (en_US).
+		 */
 		lang: String,
-		// Comma delimited list of profile fields to request
-		// eg: "id,num-connections,picture-url"
+		/**
+		 * Comma delimited list of profile fields to request
+		 * eg: "id,num-connections,picture-url"
+		 */
 		fields: {
 			type: String
 		},
+		/**
+		 * True if the user is signed
+		 */
 		signedIn: {
 			type: Boolean,
 			readOnly: true,
 			notify: true,
 			value: false
 		},
+		/**
+		 * Holds information about the logged in user
+		 */
 		person: {
 			type: Object,
 			readOnly: true,
 			notify: true
 		},
+		/**
+		 * The label of the signin button
+		 */
 		labelSignin: {
 			type: String,
 			value: 'Sign in with LinkedIn'
 		},
-		/** 
-		 * This can be used to re-authenticate the user on a back-end server 
+		/**
+		 * This can be used to re-authenticate the user on a back-end server
 		 * @see https://developer-programs.linkedin.com/documents/exchange-jsapi-tokens-rest-api-oauth-tokens
 		 */
 		oAuthData: {
@@ -85,11 +109,17 @@ LinkedInSignIn = Polymer({
 			readOnly: true,
 			notify: true
 		},
+		/**
+		 * Contains the error message if the last signin request failed
+		 */
 		error: {
 			type: String,
 			readOnly: true,
 			notify: true
 		},
+		/**
+		 * False until the Material Design styles have been applied
+		 */
 		buttonReady: {
 			type: Boolean,
 			readOnly: true,
@@ -127,7 +157,7 @@ LinkedInSignIn = Polymer({
 				callbackName = 'onLoad' + LinkedInSignIn._instances,
 				onLoad = 'LinkedInSignIn.' + callbackName;
 			LinkedInSignIn[callbackName] = initLinkedIn;
-			
+
 			script.setAttribute('src', '//platform.linkedin.com/in.js');
 			var args = 'api_key: ' + this.clientId;
 			args += '\nonLoad: ' + onLoad;
@@ -154,7 +184,7 @@ LinkedInSignIn = Polymer({
 		if (!this.isAuthorized()) {
 			return;
 		}
-		
+
 		var self = this,
 			url = '/people/~';
 		if (this.fields) {
@@ -196,8 +226,8 @@ LinkedInSignIn = Polymer({
 	_onSignedIn: function(e) {
 		if (this.cookie) {
 			var key = 'linkedin_oauth_' + this.clientId,
-				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + 
-														key.replace(/[\-\.\+\*]/g, '\\$&') + 
+				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' +
+														key.replace(/[\-\.\+\*]/g, '\\$&') +
 														'\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
 			oauthData = JSON.parse(decodeURIComponent(oauthData));
 			this._setOAuthData(oauthData);
