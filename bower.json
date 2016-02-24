@@ -11,7 +11,8 @@
   "main": "linkedin-signin.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
-    "paper-ripple": "PolymerElements/paper-ripple#^1.0.0"
+    "paper-ripple": "PolymerElements/paper-ripple#^1.0.0",
+    "paper-behaviors": "PolymerElements/paper-behaviors#^1.0.0"
   },
   "devDependencies": {
     "web-component-tester": "*",
