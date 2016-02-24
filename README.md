@@ -4,6 +4,11 @@ Polymer wrapper and Material Design styling of LinkedIn's sign in button.
 
 Based on https://github.com/gustavoisensee/linkedin-button
 
+
+## License
+
+[MIT License](http://opensource.org/licenses/MIT)
+
 ## Options
 
 ### `client-id`
