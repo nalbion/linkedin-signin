@@ -1,6 +1,7 @@
 {
   "name": "linkedin-signin",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "Polymer wrapper and Material Design styling of LinkedIn's sign in button",
   "keywords": [
     "polymer",
