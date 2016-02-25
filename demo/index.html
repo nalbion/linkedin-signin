@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-	<head>
+    <head>
         <title>linkedin-signin</title>
 
         <meta charset="utf-8">
@@ -23,10 +23,10 @@
                 margin-top: 20px;
             }
         </style>
-	</head>
+    </head>
 
-	<body>
-		<template is="dom-bind">
+    <body>
+        <template is="dom-bind">
             <h2>Step 1: Configure element</h2>
             <div class="vertical-section">
                 <div class="input">
@@ -82,7 +82,7 @@
                     [[stringify(oAuthData)]]
                 </div>
             </div>
-		</template>
+        </template>
 
         <script>
             var scope = document.querySelector('template[is=dom-bind]');
@@ -96,6 +96,6 @@
             scope.stringify = function(obj) {
                 return JSON.stringify(obj);
             };
-		</script>
-	</body>
+        </script>
+    </body>
 </html>
