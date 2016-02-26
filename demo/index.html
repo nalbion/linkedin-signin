@@ -37,12 +37,12 @@
                 </div>
                 <paper-button on-tap="init" raised disabled="[[initialized]]">Start</paper-button>
 
-                <div class="init-hint" hidden=[[!initialized]]>The key can't be changed once the LinkedIn element was initialized. Reload this page to use another key.</div>
+                <div class="init-hint" hidden="[[!initialized]]">The key can't be changed once the LinkedIn element was initialized. Reload this page to use another key.</div>
             </div>
 
             <h2>Step 2: Try element</h2>
             <div class="vertical-section">
-                <div hidden=[[initialized]]>Enter your LinkedIn key and click the [Start] button</div>
+                <div hidden="[[initialized]]">Enter your LinkedIn key and click the [Start] button</div>
 
                 <template is="dom-if" if="[[initialized]]">
                     <linkedin-signin
