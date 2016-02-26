@@ -41,11 +41,15 @@
             </div>
 
             <h2>Step 2: Try element</h2>
-            <div class="vertical-section">
-                <div hidden="[[initialized]]">Enter your LinkedIn key and click the [Start] button</div>
+            <div class="vertical-section" hidden="[[initialized]]">
+                Enter your LinkedIn key and click the [Start] button
+            </div>
 
-                <template is="dom-if" if="[[initialized]]">
+            <template is="dom-if" if="[[initialized]]">
+                <h4>Standard LinkedIn button</h4>
+                <div class="vertical-section">
                     <linkedin-signin
+                        id="signin"
                         client-id="[[key]]"
                         fields="[[fields]]"
                         authorize="[[authorize]]"
@@ -56,8 +60,15 @@
                         error="{{error}}"
                         o-auth-data="{{oAuthData}}">
                     </linkedin-signin>
-                </template>
-            </div>
+                </div>
+
+                <h4>Custom button</h4>
+                <div class="vertical-section">
+                    <paper-button raised on-tap="onCustomSignin">Signin</paper-button>
+                    <br><br><br>
+                    Set the hidden attribute on the &lt;linkedin-signin&gt; element if you use your own button.
+                </div>
+            </template>
 
             <div class="vertical-section-container" hidden="[[!initialized]]">
                 <h2>Exposed properties</h2>
@@ -92,6 +103,10 @@
             scope.lang = 'en_US';
             scope.init = function() {
                 scope.initialized = true;
+            };
+            scope.onCustomSignin = function() {
+                var signin = document.querySelector('#signin');
+                signin.signIn();
             };
             scope.stringify = function(obj) {
                 return JSON.stringify(obj);
