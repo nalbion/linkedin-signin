@@ -148,7 +148,7 @@ LinkedInSignIn = Polymer({
 		buttonScript.setAttribute("type", "IN/Login");
 		this.appendChild(buttonScript);
 
-		if (window.IN && window.IN.parse) {
+		if (window.IN) {
 			initLinkedIn();
 			IN.parse(this);
 			this._restyleButton();
