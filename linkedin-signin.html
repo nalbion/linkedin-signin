@@ -136,7 +136,7 @@ LinkedInSignIn = Polymer({
 		var self = this,
 			initLinkedIn = function() {
 				IN.Event.on(IN, 'auth', self._onSignedIn, self);
-				IN.Event.on(IN, 'systemReady', function(){console.info('systemReady!');self._restyleButton();}, self);
+				IN.Event.on(IN, 'systemReady', function(){self._restyleButton();}, self);
 				IN.Event.on(IN, 'logout', function() {
 					self.async(self._restyleButton, 0);
 				}, self);
