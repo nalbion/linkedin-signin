@@ -1,1 +1,4 @@
-.idea
+.idea/
+temp/
+bower_components/
+
