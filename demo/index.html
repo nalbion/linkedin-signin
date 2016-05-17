@@ -57,6 +57,9 @@
                         error="{{error}}"
                         o-auth-data="{{oAuthData}}">
                 </linkedin-signin>
+                <template is="dom-if" if="[[signedIn]]">
+                    <img src$="[[person.pictureUrl">
+                </template>
             </div>
 
             <h4>Custom button</h4>
