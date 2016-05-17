@@ -9,6 +9,10 @@
     "linkedin"
   ],
   "main": "linkedin-signin.html",
+  "ignore": [
+    "*.png",
+    "*.sh"
+  ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
     "paper-ripple": "PolymerElements/paper-ripple#^1.0.0",
