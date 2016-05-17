@@ -44,6 +44,7 @@ LinkedInSignIn = Polymer({
 	properties: {
 		/**
 		 * Sent as api_key, but referred to as "Client ID" in the My Apps section of the Developers site
+		 * https://www.linkedin.com/secure/developer
 		 */
 		clientId: String,
 		/**
@@ -136,7 +137,7 @@ LinkedInSignIn = Polymer({
 		var self = this,
 			initLinkedIn = function() {
 				IN.Event.on(IN, 'auth', self._onSignedIn, self);
-				IN.Event.on(IN, 'systemReady', function(){console.info('systemReady!');self._restyleButton();}, self);
+				IN.Event.on(IN, 'systemReady', self._restyleButton, self);
 				IN.Event.on(IN, 'logout', function() {
 					self.async(self._restyleButton, 0);
 				}, self);
