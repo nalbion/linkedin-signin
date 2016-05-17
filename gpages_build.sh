@@ -1,3 +1,4 @@
+#!/bin/bash
 # Fork of https://github.com/Polymer/tools/blob/master/bin/gp.sh
 # Modified to work with Travis CI automated builds
 # Check http://zisismaras.me/polymer/2015/12/02/automatic-github-pages-for-polymer-elements-with-travis-ci.html
