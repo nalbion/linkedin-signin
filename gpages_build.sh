@@ -48,6 +48,7 @@ echo "{
 }
 " > .bowerrc
 bower install
+bower install platform PolymerElements/paper-input PolymerElements/paper-checkbox
 bower install $org/$repo#$branch
 git checkout ${branch} -- demo
 rm -rf components/$repo/demo
