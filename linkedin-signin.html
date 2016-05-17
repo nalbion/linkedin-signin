@@ -12,26 +12,30 @@
 	border-radius: 3px;
 	opacity: 0;
 	transition: opacity .5s;
-
+	outline: none !important;
 	line-height: initial;
 	display: inline-block;
     position: relative;
 	font-size: 14px;
 	font-weight: 400;
 }
-:host paper-ripple {
+paper-ripple {
 	z-index: 1;
 	pointer-events: none;
 }
-:host .IN-widget {
-	position: relative;
-}
-:host .IN-widget > span {
+.IN-widget {
 	position: relative;
 	background-color: #0077b5;
 	border: 1px solid #0369a0;
 	border-radius: 3px;
 }
+/*:host .IN-widget a {*/
+    /*border-radius: 3px;*/
+/*}*/
+
+/*.IN-widget:focus, .IN-widget:hover {
+    @apply(--shadow-elevation-2dp);
+}*/
 </style>
 <template>
 </template>
@@ -76,8 +80,8 @@ LinkedInSignIn = Polymer({
 			type: String,
 			value: 'Sign in with LinkedIn'
 		},
-		/** 
-		 * This can be used to re-authenticate the user on a back-end server 
+		/**
+		 * This can be used to re-authenticate the user on a back-end server
 		 * @see https://developer-programs.linkedin.com/documents/exchange-jsapi-tokens-rest-api-oauth-tokens
 		 */
 		oAuthData: {
@@ -101,12 +105,15 @@ LinkedInSignIn = Polymer({
 	behaviors: [
 		Polymer.PaperButtonBehavior
 	],
+	hostAttributes: {
+		'tabindex': -1
+	},
 
 	attached: function () {
 		var self = this,
 			initLinkedIn = function() {
 				IN.Event.on(IN, 'auth', self._onSignedIn, self);
-				IN.Event.on(IN, 'systemReady', function(){console.info('systemReady!');self._restyleButton();}, self);
+				IN.Event.on(IN, 'systemReady', self._restyleButton, self);
 				IN.Event.on(IN, 'logout', function() {
 					self.async(self._restyleButton, 0);
 				}, self);
@@ -127,7 +134,7 @@ LinkedInSignIn = Polymer({
 				callbackName = 'onLoad' + LinkedInSignIn._instances,
 				onLoad = 'LinkedInSignIn.' + callbackName;
 			LinkedInSignIn[callbackName] = initLinkedIn;
-			
+
 			script.setAttribute('src', '//platform.linkedin.com/in.js');
 			var args = 'api_key: ' + this.clientId;
 			args += '\nonLoad: ' + onLoad;
@@ -154,7 +161,7 @@ LinkedInSignIn = Polymer({
 		if (!this.isAuthorized()) {
 			return;
 		}
-		
+
 		var self = this,
 			url = '/people/~';
 		if (this.fields) {
@@ -196,8 +203,8 @@ LinkedInSignIn = Polymer({
 	_onSignedIn: function(e) {
 		if (this.cookie) {
 			var key = 'linkedin_oauth_' + this.clientId,
-				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + 
-														key.replace(/[\-\.\+\*]/g, '\\$&') + 
+				oauthData = document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' +
+														key.replace(/[\-\.\+\*]/g, '\\$&') +
 														'\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1');
 			oauthData = JSON.parse(decodeURIComponent(oauthData));
 			this._setOAuthData(oauthData);
@@ -212,6 +219,8 @@ LinkedInSignIn = Polymer({
 			logo = a.firstElementChild,
 			title = a.children[1],
 			titleText = title.children[1];
+
+		a.style.setProperty('height', '36px', 'important');
 
 		firstChild.style.setProperty('display', 'block', 'important');
 		firstChild.style.height = '34px';
