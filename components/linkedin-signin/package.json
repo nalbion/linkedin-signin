@@ -1,0 +1,26 @@
+{
+  "name": "linkedin-signin",
+  "version": "1.0.0",
+  "description": "Polymer wrapper and Material Design styling of LinkedIn's sign in button",
+  "scripts": {
+    "deploy": "./gpages_build.sh nalbion linkedin-signin \"Nicholas Albion\" nalbion@yahoo.com",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "linkedin-signin.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nalbion/linkedin-signin.git"
+  },
+  "keywords": [
+    "polymer",
+    "linkedin",
+    "signin",
+    "web-components"
+  ],
+  "author": "Nicholas Albion <nalbion@yahoo.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nalbion/linkedin-signin/issues"
+  },
+  "homepage": "https://github.com/nalbion/linkedin-signin#readme"
+}

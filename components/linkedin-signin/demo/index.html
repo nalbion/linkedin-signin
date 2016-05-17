@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+    <head>
+        <title>linkedin-signin</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+        <link rel="import" href="../../paper-styles/demo-pages.html">
+        <link rel="import" href="../../paper-input/paper-input.html">
+        <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+        <link rel="import" href="../../paper-button/paper-button.html">
+        <link rel="import" href="../linkedin-signin.html">
+
+        <style>
+            .input {
+                margin-bottom: 20px;
+            }
+
+            .init-hint {
+                color: red;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <template is="dom-bind">
+            <h2>Step 1: Configure element</h2>
+            <div class="vertical-section">
+                <div class="input">
+                    <paper-input value="{{key}}" label="Your LinkedIn key" disabled="[[initialized]]"></paper-input>
+                    <paper-input value="{{fields}}" label="Fields to request" disabled="[[initialized]]"></paper-input>
+                    <paper-input value="{{lang}}" label="Preferred language" disabled="[[initialized]]"></paper-input>
+                    <paper-checkbox checked="{{authorize}}" disabled="[[initialized]]">Auto login</paper-checkbox>
+                </div>
+                <paper-button on-tap="init" raised disabled="[[initialized]]">Start</paper-button>
+
+                <div class="init-hint" hidden="[[!initialized]]">The key can't be changed once the LinkedIn element was initialized. Reload this page to use another key.</div>
+            </div>
+
+            <h2>Step 2: Try element</h2>
+            <div class="vertical-section" hidden="[[initialized]]">
+                Enter your LinkedIn key and click the [Start] button
+            </div>
+
+            <template is="dom-if" if="[[initialized]]">
+                <h4>Standard LinkedIn button</h4>
+                <div class="vertical-section">
+                    <linkedin-signin
+                        id="signin"
+                        client-id="[[key]]"
+                        fields="[[fields]]"
+                        authorize="[[authorize]]"
+                        lang="[[lang]]"
+                        signed-in="{{signedIn}}"
+                        button-ready="{{buttonReady}}"
+                        person="{{person}}"
+                        error="{{error}}"
+                        o-auth-data="{{oAuthData}}">
+                </linkedin-signin>
+                <template is="dom-if" if="[[signedIn]]">
+                    <img src$="[[person.pictureUrl]]">
+                </template>
+            </div>
+
+            <h4>Custom button</h4>
+            <div class="vertical-section">
+                <paper-button raised on-tap="onCustomSignin">Signin</paper-button>
+                <br><br><br>
+                Set the hidden attribute on the &lt;linkedin-signin&gt; element if you use your own button.
+            </div>
+        </template>
+
+        <div class="vertical-section-container" hidden="[[!initialized]]">
+            <h2>Exposed properties</h2>
+            <h4>buttonReady</h4>
+            <div class="vertical-section">
+                [[buttonReady]]
+            </div>
+            <h4>signedIn</h4>
+            <div class="vertical-section">
+                [[signedIn]]
+            </div>
+            <h4>person</h4>
+            <div class="vertical-section">
+                [[stringify(person)]]
+            </div>
+            <h4>error</h4>
+            <div class="vertical-section">
+                [[error]]
+            </div>
+            <h4>oAuthData</h4>
+            <div class="vertical-section">
+                [[stringify(oAuthData)]]
+            </div>
+        </div>
+    </template>
+
+    <script>
+        var scope = document.querySelector('template[is=dom-bind]');
+        scope.key = '75ae7ez36tq2dx';
+        scope.initialized = false;
+        scope.fields = 'id,num-connections,picture-url';
+        scope.lang = 'en_US';
+        scope.init = function() {
+            scope.initialized = true;
+        };
+        scope.onCustomSignin = function() {
+            var signin = document.querySelector('#signin');
+            signin.signIn();
+        };
+        scope.stringify = function(obj) {
+            return JSON.stringify(obj);
+        };
+    </script>
+  </body>
+</html>
