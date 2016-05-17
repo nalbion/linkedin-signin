@@ -1,51 +1,54 @@
 <!doctype html>
 <html>
-  <head>
-    <title>linkedin-signin</title>
+    <head>
+        <title>linkedin-signin</title>
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../../paper-styles/demo-pages.html">
-    <link rel="import" href="../../paper-input/paper-input.html">
-    <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
-    <link rel="import" href="../../paper-button/paper-button.html">
-    <link rel="import" href="../linkedin-signin.html">
-    <style>
-      .input {
-          margin-bottom: 20px;
-      }
-      .init-hint {
-          color: red;
-          margin-top: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <template is="dom-bind">
-        <h2>Step 1: Configure element</h2>
-        <div class="vertical-section">
-            <div class="input">
-                <paper-input value="{{key}}" label="Your LinkedIn key" disabled="[[initialized]]"></paper-input>
-                <paper-input value="{{fields}}" label="Fields to request" disabled="[[initialized]]"></paper-input>
-                <paper-input value="{{lang}}" label="Preferred language" disabled="[[initialized]]"></paper-input>
-                <paper-checkbox checked="{{authorize}}" disabled="[[initialized]]">Auto login</paper-checkbox>
-            </div>
-            <paper-button on-tap="init" raised disabled="[[initialized]]">Start</paper-button>
+        <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+        <link rel="import" href="../../paper-styles/demo-pages.html">
+        <link rel="import" href="../../paper-input/paper-input.html">
+        <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+        <link rel="import" href="../../paper-button/paper-button.html">
+        <link rel="import" href="../linkedin-signin.html">
 
-            <div class="init-hint" hidden="[[!initialized]]">The key can't be changed once the LinkedIn element was initialized. Reload this page to use another key.</div>
-        </div>
+        <style>
+            .input {
+                margin-bottom: 20px;
+            }
 
-        <h2>Step 2: Try element</h2>
-        <div class="vertical-section" hidden="[[initialized]]">
-            Enter your LinkedIn key and click the [Start] button
-        </div>
+            .init-hint {
+                color: red;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
 
-        <template is="dom-if" if="[[initialized]]">
-            <h4>Standard LinkedIn button</h4>
+    <body>
+        <template is="dom-bind">
+            <h2>Step 1: Configure element</h2>
             <div class="vertical-section">
-                <linkedin-signin
+                <div class="input">
+                    <paper-input value="{{key}}" label="Your LinkedIn key" disabled="[[initialized]]"></paper-input>
+                    <paper-input value="{{fields}}" label="Fields to request" disabled="[[initialized]]"></paper-input>
+                    <paper-input value="{{lang}}" label="Preferred language" disabled="[[initialized]]"></paper-input>
+                    <paper-checkbox checked="{{authorize}}" disabled="[[initialized]]">Auto login</paper-checkbox>
+                </div>
+                <paper-button on-tap="init" raised disabled="[[initialized]]">Start</paper-button>
+
+                <div class="init-hint" hidden="[[!initialized]]">The key can't be changed once the LinkedIn element was initialized. Reload this page to use another key.</div>
+            </div>
+
+            <h2>Step 2: Try element</h2>
+            <div class="vertical-section" hidden="[[initialized]]">
+                Enter your LinkedIn key and click the [Start] button
+            </div>
+
+            <template is="dom-if" if="[[initialized]]">
+                <h4>Standard LinkedIn button</h4>
+                <div class="vertical-section">
+                    <linkedin-signin
                         id="signin"
                         client-id="[[key]]"
                         fields="[[fields]]"
