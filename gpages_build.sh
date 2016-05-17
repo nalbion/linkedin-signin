@@ -24,12 +24,6 @@ name=$3
 email=$4
 branch=${5:-"master"} # default to master when branch isn't specified
 
-echo $org
-echo $repo
-echo $name
-echo $email
-echo $branch
-exit 0
 
 mkdir temp && cd temp
 
