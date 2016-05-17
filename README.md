@@ -4,6 +4,14 @@ Polymer wrapper and Material Design styling of LinkedIn's sign in button.
 
 Based on https://github.com/gustavoisensee/linkedin-button
 
+![Sign in with LinkedIn](signin-with-linkedin.png)
+
+Shares the same size, effects and API as the [google-signin](https://elements.polymer-project.org/elements/google-signin) element.
+
+![Sign in](signin.png)
+
+Try the interactive [demo](http://nalbion.github.io/linkedin-signin/components/linkedin-signin/)
+
 
 ## License
 
