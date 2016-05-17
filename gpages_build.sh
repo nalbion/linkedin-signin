@@ -25,10 +25,11 @@ name=$3
 email=$4
 branch=${5:-"master"} # default to master when branch isn't specified
 
-
+rm -rf temp
 mkdir temp && cd temp
 
 # make folder (same as input, no checking!)
+rm -rf $repo
 mkdir $repo
 git clone git@github.com:$org/$repo.git --single-branch
 
