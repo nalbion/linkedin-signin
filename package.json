@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Polymer wrapper and Material Design styling of LinkedIn's sign in button",
   "scripts": {
-    "deploy": "./ghpages_build.sh nalbion linkedin-signin \"Nicholas Albion\" nalbion@yahoo.com",
+    "deploy": "./gpages_build.sh nalbion linkedin-signin \"Nicholas Albion\" nalbion@yahoo.com",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
